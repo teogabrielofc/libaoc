@@ -1,7 +1,11 @@
 # Architecture
 
-`libaoc` is a static C library. The goal is to keep TV-specific details out of
-apps.
+`libaoc` is a static C library for native apps on MIPS/uClibc AOC TVs. The
+goal is to keep TV-specific details out of apps.
+
+The architecture is general, but the current backend was researched and
+validated on the LC32D1320. Porting to another AOC model probably requires
+confirming devices, PSB addresses, and framebuffer/input layout.
 
 ## SDK modules
 
@@ -41,3 +45,5 @@ if another unit or firmware shows the wrong page.
 - `command`: name chosen with `--base-name`, runs a chosen shell command.
 
 The custom PSB uses the same `system(a0)` path already validated on the TV.
+The default constants for that path are from the LC32D1320; for another model,
+collect a core and regenerate the PSB with `--core`.

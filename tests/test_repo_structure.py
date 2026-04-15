@@ -64,11 +64,12 @@ def test_gitignore_keeps_build_outputs_out_but_allows_selected_artifacts() -> No
 
 
 def test_readme_is_actionable_for_usb_launch() -> None:
-    text = (ROOT / "README.md").read_text(encoding="ascii")
-    english = (ROOT / "README.en.md").read_text(encoding="ascii")
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    english = (ROOT / "README.en.md").read_text(encoding="utf-8")
 
-    assert "AOC LC32D1320" in text
-    assert "Inicio rapido" in text
+    assert "TVs AOC" in text
+    assert "LC32D1320" in text
+    assert "Início rápido" in text
     assert "make doom" in text
     assert "make usb" in text
     assert "make psb" in text
@@ -79,5 +80,7 @@ def test_readme_is_actionable_for_usb_launch() -> None:
     assert "libaocdoom" in text
     assert "libaoccore" in text
     assert "Quick start" in english
+    assert "AOC TVs" in english
+    assert "LC32D1320" in english
     assert "Custom command PSB" in english
     assert "libaocdoom" in english

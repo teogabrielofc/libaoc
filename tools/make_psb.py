@@ -37,11 +37,11 @@ def _copy_template_avi(out_dir: Path, base_name: str, template_avi: Path | str =
         return
     if destination.exists():
         return
-    raise FileNotFoundError(f"AVI base nao encontrado: {template}")
+    raise FileNotFoundError(f"AVI base não encontrado: {template}")
 
 
 def _write_readme(out_dir: Path, lines: list[str]) -> None:
-    (out_dir / "README.md").write_text("\n".join(lines) + "\n", encoding="ascii", newline="\n")
+    (out_dir / "README.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
 def _write_artifact_readme(out_dir: Path, extra_lines: list[str] | None = None) -> None:
@@ -51,7 +51,7 @@ def _write_artifact_readme(out_dir: Path, extra_lines: list[str] | None = None) 
         "- libaocdoom.avi + libaocdoom.psb: abre /mnt/doom/launch.sh.",
         "- libaoccore.avi + libaoccore.psb: tenta gerar crash/core dump no parser.",
         "",
-        "Constantes padrao:",
+        "Constantes padrão:",
         "",
         f"- libc base = {DEFAULT_LIBC_BASE:#010x}",
         f"- saved s0 = {SAVED_S0:#010x}",
@@ -61,7 +61,7 @@ def _write_artifact_readme(out_dir: Path, extra_lines: list[str] | None = None) 
         "make cmdpsb CMD='echo OK>/etc/core/libaoc.ok' BASE=libaoccmd",
     ]
     if extra_lines:
-        lines.extend(["", "Ultima geracao:", ""])
+        lines.extend(["", "Última geração:", ""])
         lines.extend(extra_lines)
     _write_readme(out_dir, lines)
 

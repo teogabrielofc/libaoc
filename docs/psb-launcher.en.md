@@ -1,9 +1,9 @@
 # PSB launcher
 
 `tools/make_psb.py doom-launcher` generates `libaocdoom.avi` and
-`libaocdoom.psb`.
+`libaocdoom.psb` for AOC TVs compatible with this PSB subtitle path.
 
-Default constants confirmed on the tested LC32D1320:
+The default constants below are from the tested LC32D1320:
 
 - libc base: `0x2bbb8000`
 - `system`: `0x2bc07240`
@@ -70,3 +70,6 @@ If you have a core from another boot or firmware, use:
 ```sh
 python tools/make_psb.py command --core core.plfApFusion71Di.875.11 --command 'echo OK>/etc/core/libaoc.ok'
 ```
+
+For another AOC model, treat `--core` as required until you confirm that bases
+and gadgets match.

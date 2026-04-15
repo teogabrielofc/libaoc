@@ -1,20 +1,33 @@
 # libaoc
 
-`libaoc` e um mini-SDK C nativo para a TV AOC LC32D1320. Ele empacota o
-necessario para compilar apps MIPS/uClibc e abrir esses apps pelo caminho de
+`libaoc` é um mini-SDK C nativo para TVs AOC baseadas em MIPS/uClibc. Ele
+empacota o necessário para compilar apps e abrir esses apps pelo caminho de
 legenda PSB do Media Center.
 
-O repo e autocontido:
+O alvo testado e usado como referência é a AOC LC32D1320. Algumas partes do
+repo, principalmente endereços PSB, dispositivos de framebuffer/input e
+artefatos prontos, são focadas nesse modelo e nessa família de firmware.
+
+O repo é autocontido:
 
 - `include/` e `src/`: SDK C.
 - `runtime/`: entrada MIPS e shims para uClibc.
 - `examples/doom/`: adaptador DoomGeneric para a TV.
-- `third_party/sysroots/mips_tv/`: sysroot extraido da firmware.
+- `third_party/sysroots/mips_tv/`: sysroot extraído da firmware.
 - `artifacts/usb/doom/`: payload pronto para o pendrive.
 - `artifacts/psb/`: `libaocdoom.*` e `libaoccore.*`.
 - `tools/`: build, PSB, USB superfloppy e leitura de core dump.
 
-## Inicio rapido
+## Escopo de compatibilidade
+
+- Geral: estrutura do SDK, build MIPS/uClibc, runtime mínimo e organização de
+  payloads para TVs AOC parecidas.
+- LC32D1320: PSB pronto, constantes de `system()`, gadgets, caminhos de input,
+  framebuffer e Doom já validado na TV real.
+- Outros modelos: devem ser tratados como portas novas; use `libaoccore.*` e
+  `tools/core_addresses.py` para recuperar endereços antes de confiar nos PSBs.
+
+## Início rápido
 
 No WSL/Linux com toolchain MIPS no PATH:
 
@@ -27,7 +40,7 @@ make corepsb
 make usb
 ```
 
-Sem `make`, rode direto:
+Sem `make`, rode diretamente:
 
 ```sh
 python -m pytest -q
@@ -38,7 +51,7 @@ python tools/make_psb.py core-crash
 python tools/make_usb_tree.py --out dist/usb --include-psb
 ```
 
-Copie o conteudo de `dist/usb` para a raiz do pendrive:
+Copie o conteúdo de `dist/usb` para a raiz do pendrive:
 
 ```text
 doom/
@@ -68,17 +81,17 @@ Isso gera `artifacts/psb/libaoccmd.avi` e `artifacts/psb/libaoccmd.psb`.
 
 ## Core dump
 
-`libaoccore.*` e o par para tentar gerar core dump do parser PSB. Use pendrive
+`libaoccore.*` é o par para tentar gerar core dump do parser PSB. Use pendrive
 FAT32 superfloppy, conectado antes de ligar a TV na tomada. Depois do
 travamento, procure `core.*` na raiz do pendrive.
 
-Para ler os enderecos:
+Para ler os endereços:
 
 ```sh
 python tools/core_addresses.py core.plfApFusion71Di.875.11
 ```
 
-## Compilar app proprio
+## Compilar app próprio
 
 Um app C com `main()` pode ser compilado assim:
 
@@ -88,24 +101,24 @@ make app APP=examples/hello/hello.c OUT=artifacts/usb/hello
 
 ## Ajustes do Doom
 
-- `AOC_FB_PAGES=1` pinta uma pagina de framebuffer por frame e e o caminho
-  padrao jogavel.
-- `AOC_FB_PAGES=all` pinta tudo e serve como fallback seguro se a imagem nao
+- `AOC_FB_PAGES=1` pinta uma página de framebuffer por frame e é o caminho
+  padrão jogável.
+- `AOC_FB_PAGES=all` pinta tudo e serve como fallback seguro se a imagem não
   aparecer.
-- `AOC_INPUT_DEBUG=1` reativa logs crus de input para mapear botoes.
+- `AOC_INPUT_DEBUG=1` reativa logs crus de input para mapear botões.
 
 Controles confirmados:
 
 - Vol+ -> frente
-- Vol- -> tras
+- Vol- -> trás
 - Menu -> atirar
-- CH+ -> virar esquerda
-- CH- -> virar direita
+- CH+ -> virar à esquerda
+- CH- -> virar à direita
 - Input -> usar/abrir
 
 ## Docs
 
-- `docs/quickstart.md`: caminho curto ate rodar na TV.
+- `docs/quickstart.md`: caminho curto até rodar na TV.
 - `docs/architecture.md`: arquitetura do SDK e runtime.
 - `docs/psb-launcher.md`: detalhes dos PSBs.
 - `docs/troubleshooting.md`: falhas comuns.

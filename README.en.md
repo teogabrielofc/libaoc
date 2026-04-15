@@ -1,8 +1,12 @@
 # libaoc
 
-`libaoc` is a small native C SDK for the AOC LC32D1320 TV. It packages the
-pieces needed to build MIPS/uClibc apps and launch them through the Media
-Center PSB subtitle path.
+`libaoc` is a small native C SDK for MIPS/uClibc-based AOC TVs. It packages
+the pieces needed to build apps and launch them through the Media Center PSB
+subtitle path.
+
+The tested reference target is the AOC LC32D1320. Some parts of the repo,
+especially PSB addresses, framebuffer/input devices, and ready-made artifacts,
+are focused on that model and firmware family.
 
 The repo is self-contained:
 
@@ -13,6 +17,15 @@ The repo is self-contained:
 - `artifacts/usb/doom/`: ready-to-copy USB payload.
 - `artifacts/psb/`: `libaocdoom.*` and `libaoccore.*`.
 - `tools/`: build, PSB, USB superfloppy, and core dump address tools.
+
+## Compatibility scope
+
+- General: SDK structure, MIPS/uClibc build flow, minimal runtime, and payload
+  organization for similar AOC TVs.
+- LC32D1320: ready-made PSB, `system()` constants, gadgets, input paths,
+  framebuffer paths, and Doom validated on real hardware.
+- Other models: treat them as new ports; use `libaoccore.*` and
+  `tools/core_addresses.py` to recover addresses before trusting the PSBs.
 
 ## Quick start
 

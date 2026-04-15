@@ -1,5 +1,9 @@
 # Troubleshooting
 
+The notes below mainly apply to the LC32D1320 and to AOC TVs with a similar
+firmware. On another model, first confirm device paths, PSB addresses, and
+Media Center behavior.
+
 ## Doom does not appear
 
 Use the safe framebuffer mode:
@@ -68,3 +72,6 @@ Then generate the PSB again with:
 ```sh
 python tools/make_psb.py doom-launcher --core core.plfApFusion71Di.875.11
 ```
+
+If this is another AOC TV, always generate PSBs from a core captured on that
+specific model.

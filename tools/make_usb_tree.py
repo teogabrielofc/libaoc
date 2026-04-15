@@ -8,6 +8,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PAYLOAD_ROOT = ROOT / "artifacts" / "usb" / "doom"
 PSB_ROOT = ROOT / "artifacts" / "psb"
+STALE_PSB_NAMES = [
+    "PSB60_LAUNCH_DOOM.avi",
+    "PSB60_LAUNCH_DOOM.psb",
+]
 
 
 def copy_file(src: Path, dst: Path) -> None:
@@ -24,14 +28,19 @@ def build_tree(outdir: Path | str, include_psb: bool = False) -> Path:
         copy_file(PAYLOAD_ROOT / name, destination / name)
 
     if include_psb:
-        copy_file(PSB_ROOT / "PSB60_LAUNCH_DOOM.avi", out / "PSB60_LAUNCH_DOOM.avi")
-        copy_file(PSB_ROOT / "PSB60_LAUNCH_DOOM.psb", out / "PSB60_LAUNCH_DOOM.psb")
+        for name in STALE_PSB_NAMES:
+            stale = out / name
+            if stale.exists():
+                stale.unlink()
+        for base_name in ["libaocdoom", "libaoccore"]:
+            copy_file(PSB_ROOT / f"{base_name}.avi", out / f"{base_name}.avi")
+            copy_file(PSB_ROOT / f"{base_name}.psb", out / f"{base_name}.psb")
 
     return destination
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build a USB tree for the AOC Doom launcher.")
+    parser = argparse.ArgumentParser(description="Monta uma arvore USB para o launcher libaoc.")
     parser.add_argument("--out", type=Path, default=ROOT / "dist" / "usb")
     parser.add_argument("--include-psb", action="store_true")
     args = parser.parse_args()

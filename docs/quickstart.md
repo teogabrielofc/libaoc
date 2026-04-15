@@ -1,29 +1,31 @@
-# Quickstart
+# Inicio rapido
 
-## Requirements
+## Requisitos
 
-- Windows plus WSL/Ubuntu, or Linux.
-- `python` with packages from `requirements.txt`.
-- MIPS cross tools in PATH:
+- Windows com WSL/Ubuntu, ou Linux.
+- `python` com os pacotes de `requirements.txt`.
+- Toolchain MIPS no PATH:
   - `mips-linux-gnu-gcc`
   - `mips-linux-gnu-as`
   - `mips-linux-gnu-ar`
   - `mips-linux-gnu-readelf`
+- `ffmpeg` apenas se voce for trocar o video AVI base.
 
-## Build
+## Build normal
 
 ```sh
 python -m pip install -r requirements.txt
-python -m pytest -q
-bash tools/build_libaoc_wsl.sh
-bash examples/doom/build_doom_wsl.sh
-python tools/make_psb.py doom-launcher
-python tools/make_usb_tree.py --out dist/usb --include-psb
+make test
+make sdk
+make doom
+make psb
+make corepsb
+make usb
 ```
 
-## USB Layout
+## Layout do pendrive
 
-The USB root should contain:
+A raiz do pendrive deve ficar assim:
 
 ```text
 doom/
@@ -31,18 +33,32 @@ doom/
   doom1.wad
   launch.sh
   README.md
-PSB60_LAUNCH_DOOM.avi
-PSB60_LAUNCH_DOOM.psb
+libaocdoom.avi
+libaocdoom.psb
+libaoccore.avi
+libaoccore.psb
 ```
 
-Open the AVI in the TV Media Center and enable subtitles.
+Abra `libaocdoom.avi` no Media Center e habilite a legenda.
 
-## If Video Does Not Appear
+## PSB customizado
 
-Edit `doom/launch.sh` and set:
+Para gerar um PSB que roda um comando escolhido:
+
+```sh
+make psb CMD='echo OK>/etc/core/libaoc.ok' BASE=libaoccmd
+make cmdpsb CMD='echo OK>/etc/core/libaoc.ok' BASE=libaoccmd
+```
+
+O par gerado fica em `artifacts/psb/libaoccmd.avi` e
+`artifacts/psb/libaoccmd.psb`.
+
+## Se a imagem nao aparecer
+
+Edite `doom/launch.sh` e use:
 
 ```sh
 export AOC_FB_PAGES="${AOC_FB_PAGES:-all}"
 ```
 
-That uses the safe full-page paint path.
+Isso usa o caminho seguro de pintar todas as paginas do framebuffer.

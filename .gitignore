@@ -15,5 +15,7 @@ artifacts/**
 !artifacts/usb/doom/README.md
 !artifacts/psb/
 !artifacts/psb/README.md
-!artifacts/psb/PSB60_LAUNCH_DOOM.psb
-!artifacts/psb/PSB60_LAUNCH_DOOM.avi
+!artifacts/psb/libaocdoom.psb
+!artifacts/psb/libaocdoom.avi
+!artifacts/psb/libaoccore.psb
+!artifacts/psb/libaoccore.avi

@@ -1,78 +1,119 @@
 # libaoc
 
-`libaoc` is a small native C SDK for the AOC LC32D1320 TV firmware.
-It packages the pieces needed to build and launch simple MIPS/uClibc apps
-through the Media Center subtitle path.
+`libaoc` e um mini-SDK C nativo para a TV AOC LC32D1320. Ele empacota o
+necessario para compilar apps MIPS/uClibc e abrir esses apps pelo caminho de
+legenda PSB do Media Center.
 
-The repository is intentionally self-contained:
+O repo e autocontido:
 
-- `include/` and `src/` contain the SDK.
-- `runtime/` contains the MIPS entry/runtime shims.
-- `examples/doom/` contains the DoomGeneric TV adapter and launcher.
-- `third_party/sysroots/mips_tv/` contains the firmware sysroot used by the
-  build scripts.
-- `artifacts/usb/doom/` contains a ready-to-copy Doom payload.
-- `artifacts/psb/` contains `PSB60_LAUNCH_DOOM.avi` and `.psb`.
+- `include/` e `src/`: SDK C.
+- `runtime/`: entrada MIPS e shims para uClibc.
+- `examples/doom/`: adaptador DoomGeneric para a TV.
+- `third_party/sysroots/mips_tv/`: sysroot extraido da firmware.
+- `artifacts/usb/doom/`: payload pronto para o pendrive.
+- `artifacts/psb/`: `libaocdoom.*` e `libaoccore.*`.
+- `tools/`: build, PSB, USB superfloppy e leitura de core dump.
 
-## Quick Start
+## Inicio rapido
 
-From WSL or a shell with the MIPS tools available:
+No WSL/Linux com toolchain MIPS no PATH:
 
 ```sh
 make test
 make sdk
 make doom
 make psb
+make corepsb
 make usb
 ```
 
-If `make` is not installed, use the scripts directly:
+Sem `make`, rode direto:
 
 ```sh
 python -m pytest -q
 bash tools/build_libaoc_wsl.sh
 bash examples/doom/build_doom_wsl.sh
 python tools/make_psb.py doom-launcher
+python tools/make_psb.py core-crash
 python tools/make_usb_tree.py --out dist/usb --include-psb
 ```
 
-Copy `dist/usb` to a FAT32 USB stick, or copy these items manually to the USB
-root:
+Copie o conteudo de `dist/usb` para a raiz do pendrive:
 
-- `doom/`
-- `PSB60_LAUNCH_DOOM.avi`
-- `PSB60_LAUNCH_DOOM.psb`
+```text
+doom/
+libaocdoom.avi
+libaocdoom.psb
+libaoccore.avi
+libaoccore.psb
+```
 
-On the TV, open `PSB60_LAUNCH_DOOM.avi` in Media Center with subtitles enabled.
-The subtitle payload runs:
+Na TV, abra `libaocdoom.avi` no Media Center e habilite a legenda
+`libaocdoom.psb`. O payload roda:
 
 ```sh
 chmod +x /mnt/doom/launch.sh; /mnt/doom/launch.sh
 ```
 
-## Doom Runtime Knobs
+## PSB por comando
 
-The launcher exports conservative defaults:
+Para gerar um PSB que roda um comando escolhido:
 
-- `AOC_FB_PAGES=1` paints one framebuffer page per frame and is the default
-  playable path.
-- `AOC_FB_PAGES=all` restores the old safe full-paint behavior if video does
-  not appear.
-- `AOC_FB_FULL_REFRESH_EVERY=0` disables periodic full refreshes.
-- `AOC_INPUT_DEBUG=1` re-enables raw input logs when mapping buttons.
+```sh
+make psb CMD='echo OK>/etc/core/libaoc.ok' BASE=libaoccmd
+make cmdpsb CMD='echo OK>/etc/core/libaoc.ok' BASE=libaoccmd
+```
 
-Confirmed Doom controls:
+Isso gera `artifacts/psb/libaoccmd.avi` e `artifacts/psb/libaoccmd.psb`.
 
-- Vol+ -> forward
-- Vol- -> backward
-- Menu -> fire
-- CH+ -> turn left
-- CH- -> turn right
-- Input -> use/open
+## Core dump
 
-## Documentation
+`libaoccore.*` e o par para tentar gerar core dump do parser PSB. Use pendrive
+FAT32 superfloppy, conectado antes de ligar a TV na tomada. Depois do
+travamento, procure `core.*` na raiz do pendrive.
 
-- `docs/quickstart.md`: shortest path from clone to TV.
-- `docs/architecture.md`: SDK and launcher architecture.
-- `docs/psb-launcher.md`: PSB60 payload details.
-- `docs/troubleshooting.md`: common failure modes.
+Para ler os enderecos:
+
+```sh
+python tools/core_addresses.py core.plfApFusion71Di.875.11
+```
+
+## Compilar app proprio
+
+Um app C com `main()` pode ser compilado assim:
+
+```sh
+make app APP=examples/hello/hello.c OUT=artifacts/usb/hello
+```
+
+## Ajustes do Doom
+
+- `AOC_FB_PAGES=1` pinta uma pagina de framebuffer por frame e e o caminho
+  padrao jogavel.
+- `AOC_FB_PAGES=all` pinta tudo e serve como fallback seguro se a imagem nao
+  aparecer.
+- `AOC_INPUT_DEBUG=1` reativa logs crus de input para mapear botoes.
+
+Controles confirmados:
+
+- Vol+ -> frente
+- Vol- -> tras
+- Menu -> atirar
+- CH+ -> virar esquerda
+- CH- -> virar direita
+- Input -> usar/abrir
+
+## Docs
+
+- `docs/quickstart.md`: caminho curto ate rodar na TV.
+- `docs/architecture.md`: arquitetura do SDK e runtime.
+- `docs/psb-launcher.md`: detalhes dos PSBs.
+- `docs/troubleshooting.md`: falhas comuns.
+
+Versoes em ingles:
+
+- `README.en.md`
+- `docs/quickstart.en.md`
+- `docs/architecture.en.md`
+- `docs/psb-launcher.en.md`
+- `docs/troubleshooting.en.md`

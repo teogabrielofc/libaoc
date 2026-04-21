@@ -70,46 +70,48 @@ int aoc_input_pop(struct aoc_input *input, struct aoc_input_event *event) {
 enum aoc_input_action aoc_input_translate_raw(uint32_t raw) {
     switch (raw) {
         case REMOTE_KEY_SOCKET_VOL_UP:
-            return AOC_INPUT_FORWARD;
+            return AOC_INPUT_VOLUP;
         case REMOTE_KEY_SOCKET_VOL_DOWN:
-            return AOC_INPUT_BACKWARD;
+            return AOC_INPUT_VOLDOWN;
         case REMOTE_KEY_SOCKET_MENU:
-            return AOC_INPUT_FIRE;
+            return AOC_INPUT_MENU;
         case REMOTE_KEY_SOCKET_CH_UP:
-            return AOC_INPUT_TURN_LEFT;
+            return AOC_INPUT_CHUP;
         case REMOTE_KEY_SOCKET_CH_DOWN:
-            return AOC_INPUT_TURN_RIGHT;
+            return AOC_INPUT_CHDOWN;
         case REMOTE_KEY_SOCKET_INPUT_1:
         case REMOTE_KEY_SOCKET_INPUT_2:
         case REMOTE_KEY_SOCKET_INPUT_3:
-            return AOC_INPUT_USE;
+            return AOC_INPUT_INPUT;
         case REMOTE_KEY_UP:
         case 7U:
         case DIKS_CURSOR_UP:
-        case DIKS_CHANNEL_UP:
-            return AOC_INPUT_FORWARD;
+            return AOC_INPUT_VOLUP;
         case REMOTE_KEY_DOWN:
         case 6U:
         case DIKS_CURSOR_DOWN:
-        case DIKS_CHANNEL_DOWN:
-            return AOC_INPUT_BACKWARD;
+            return AOC_INPUT_VOLDOWN;
         case REMOTE_KEY_LEFT:
         case 8U:
         case DIKS_CURSOR_LEFT:
-        case DIKS_VOLUME_DOWN:
-            return AOC_INPUT_TURN_LEFT;
+        case DIKS_CHANNEL_UP:
+            return AOC_INPUT_CHUP;
         case REMOTE_KEY_RIGHT:
         case 9U:
         case DIKS_CURSOR_RIGHT:
+        case DIKS_CHANNEL_DOWN:
+            return AOC_INPUT_CHDOWN;
         case DIKS_VOLUME_UP:
-            return AOC_INPUT_TURN_RIGHT;
+            return AOC_INPUT_VOLUP;
+        case DIKS_VOLUME_DOWN:
+            return AOC_INPUT_VOLDOWN;
         case REMOTE_KEY_MENU:
         case 15U:
         case DIKS_MENU:
-            return AOC_INPUT_FIRE;
+            return AOC_INPUT_MENU;
         case DIKS_OK:
         case DIKS_ENTER:
-            return AOC_INPUT_USE;
+            return AOC_INPUT_INPUT;
         default:
             return AOC_INPUT_NONE;
     }

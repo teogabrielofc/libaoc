@@ -11,12 +11,18 @@ def test_libaoc_public_api_and_platform_constants() -> None:
     assert 'AOC_INPUT_SOCKET_PATH "/tmp/hp_dfb_handler"' in text
     assert 'AOC_REMOTE_DEVICE_PATH "/dev/remote"' in text
     assert "enum aoc_input_action" in text
-    assert "AOC_INPUT_FORWARD" in text
-    assert "AOC_INPUT_BACKWARD" in text
-    assert "AOC_INPUT_FIRE" in text
-    assert "AOC_INPUT_TURN_LEFT" in text
-    assert "AOC_INPUT_TURN_RIGHT" in text
-    assert "AOC_INPUT_USE" in text
+    assert "AOC_INPUT_VOLUP" in text
+    assert "AOC_INPUT_VOLDOWN" in text
+    assert "AOC_INPUT_MENU" in text
+    assert "AOC_INPUT_CHUP" in text
+    assert "AOC_INPUT_CHDOWN" in text
+    assert "AOC_INPUT_INPUT" in text
+    assert "AOC_INPUT_FORWARD = AOC_INPUT_VOLUP" in text
+    assert "AOC_INPUT_BACKWARD = AOC_INPUT_VOLDOWN" in text
+    assert "AOC_INPUT_FIRE = AOC_INPUT_MENU" in text
+    assert "AOC_INPUT_TURN_LEFT = AOC_INPUT_CHUP" in text
+    assert "AOC_INPUT_TURN_RIGHT = AOC_INPUT_CHDOWN" in text
+    assert "AOC_INPUT_USE = AOC_INPUT_INPUT" in text
     assert "int aoc_fb_open(struct aoc_fb *fb, const char *device_path);" in text
     assert "void aoc_fb_present_xrgb8888_scaled(" in text
     assert "int aoc_input_open(struct aoc_input *input);" in text

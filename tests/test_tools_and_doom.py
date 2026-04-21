@@ -126,6 +126,11 @@ def test_doom_example_adapter_uses_libaoc_not_raw_platform_paths() -> None:
     assert "aoc_fb_open(&g_fb, NULL)" in text
     assert "aoc_fb_present_xrgb8888_scaled(&g_fb" in text
     assert "aoc_input_poll(&g_input, g_draw_frame_count)" in text
-    assert "AOC_INPUT_FORWARD" in text
+    assert "AOC_INPUT_VOLUP" in text
+    assert "AOC_INPUT_VOLDOWN" in text
+    assert "AOC_INPUT_MENU" in text
+    assert "AOC_INPUT_CHUP" in text
+    assert "AOC_INPUT_CHDOWN" in text
+    assert "AOC_INPUT_INPUT" in text
     assert '"/dev/hidtv2dge"' not in text
     assert '"/tmp/hp_dfb_handler"' not in text

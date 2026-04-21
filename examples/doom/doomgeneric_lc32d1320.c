@@ -25,17 +25,17 @@ static void fail_and_exit(const char *message, int code) {
 
 static unsigned char aoc_input_to_doom_key(enum aoc_input_action action) {
     switch (action) {
-        case AOC_INPUT_FORWARD:
+        case AOC_INPUT_VOLUP:
             return KEY_UPARROW;
-        case AOC_INPUT_BACKWARD:
+        case AOC_INPUT_VOLDOWN:
             return KEY_DOWNARROW;
-        case AOC_INPUT_FIRE:
+        case AOC_INPUT_MENU:
             return KEY_FIRE;
-        case AOC_INPUT_TURN_LEFT:
+        case AOC_INPUT_CHUP:
             return KEY_LEFTARROW;
-        case AOC_INPUT_TURN_RIGHT:
+        case AOC_INPUT_CHDOWN:
             return KEY_RIGHTARROW;
-        case AOC_INPUT_USE:
+        case AOC_INPUT_INPUT:
             return KEY_USE;
         default:
             return 0;

@@ -39,6 +39,7 @@
 #define DIKS_VOLUME_DOWN 61517U
 
 #define INPUT_LOG_LIMIT 128UL
+#define INPUT_REOPEN_RETRY_FRAMES 20UL
 
 static int queue_input_event(
     struct aoc_input *input,
@@ -252,14 +253,26 @@ static void process_trid_bytes(
     }
 }
 
-static void ensure_trid_input_open(struct aoc_input *input) {
+static void schedule_trid_retry(struct aoc_input *input, unsigned long frame) {
+    input->trid_open_attempted = frame + INPUT_REOPEN_RETRY_FRAMES;
+}
+
+static void schedule_remote_retry(struct aoc_input *input, unsigned long frame) {
+    input->remote_open_attempted = frame + INPUT_REOPEN_RETRY_FRAMES;
+}
+
+static void ensure_trid_input_open(struct aoc_input *input, unsigned long frame) {
     struct sockaddr_un addr;
 
-    if (input->trid_fd >= 0 || input->trid_open_attempted) {
+    if (input->trid_fd >= 0) {
+        return;
+    }
+    if (input->trid_open_attempted != 0 &&
+        frame < input->trid_open_attempted) {
         return;
     }
 
-    input->trid_open_attempted = 1;
+    schedule_trid_retry(input, frame);
     input->trid_fd = socket(AF_UNIX, SOCK_DGRAM, 0);
     if (input->trid_fd < 0) {
         if (input->debug) {
@@ -285,15 +298,20 @@ static void ensure_trid_input_open(struct aoc_input *input) {
     }
 
     chmod(AOC_INPUT_SOCKET_PATH, 0666);
+    input->trid_open_attempted = 0;
     aoc_log_line("aoc_input: trid bind ok");
 }
 
-static void ensure_remote_open(struct aoc_input *input) {
-    if (input->remote_fd >= 0 || input->remote_open_attempted) {
+static void ensure_remote_open(struct aoc_input *input, unsigned long frame) {
+    if (input->remote_fd >= 0) {
+        return;
+    }
+    if (input->remote_open_attempted != 0 &&
+        frame < input->remote_open_attempted) {
         return;
     }
 
-    input->remote_open_attempted = 1;
+    schedule_remote_retry(input, frame);
     input->remote_fd = open(AOC_REMOTE_DEVICE_PATH, O_RDONLY | O_NONBLOCK);
     if (input->remote_fd < 0) {
         if (input->debug) {
@@ -305,6 +323,7 @@ static void ensure_remote_open(struct aoc_input *input) {
     if (input->debug) {
         aoc_log_line("aoc_input: remote open ok");
     }
+    input->remote_open_attempted = 0;
     aoc_raw_ioctl(input->remote_fd, 0x1009, (void *)1UL);
     aoc_raw_ioctl(input->remote_fd, 0x1005, (void *)0xffUL);
 }
@@ -322,7 +341,7 @@ int aoc_input_open(struct aoc_input *input) {
 
     debug_env = getenv("AOC_INPUT_DEBUG");
     input->debug = debug_env != 0 && strcmp(debug_env, "1") == 0;
-    ensure_trid_input_open(input);
+    ensure_trid_input_open(input, 0);
     return 0;
 }
 
@@ -337,7 +356,7 @@ int aoc_input_poll(struct aoc_input *input, unsigned long frame) {
     }
     input->frame_polled = frame;
 
-    ensure_trid_input_open(input);
+    ensure_trid_input_open(input, frame);
     if (input->trid_fd >= 0) {
         while (reads < 8U) {
             unsigned char buf[64];
@@ -351,7 +370,7 @@ int aoc_input_poll(struct aoc_input *input, unsigned long frame) {
     }
 
     reads = 0;
-    ensure_remote_open(input);
+    ensure_remote_open(input, frame);
     if (input->remote_fd >= 0) {
         while (reads < 8U) {
             unsigned char buf[32];

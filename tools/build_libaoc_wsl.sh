@@ -16,6 +16,7 @@ SRC=(
   src/aoc_input.c
   src/aoc_log.c
   src/aoc_runtime.c
+  src/aoc_usb_kbd.c
 )
 
 mkdir -p "$BUILD_DIR"

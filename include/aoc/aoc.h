@@ -8,6 +8,10 @@
 #define AOC_REMOTE_DEVICE_PATH "/dev/remote"
 #define AOC_LOG_DEFAULT_PATH "/etc/core/aoc.log"
 #define AOC_INPUT_QUEUE_CAP 32U
+#define AOC_USB_KBD_QUEUE_CAP 32U
+#define AOC_USB_KBD_PATH_CAP 64U
+#define AOC_USB_KBD_NAME_CAP 96U
+#define AOC_USB_KBD_REPORT_CAP 8U
 
 enum aoc_input_action {
     AOC_INPUT_NONE = 0,
@@ -32,6 +36,17 @@ struct aoc_input_event {
     uint32_t raw;
 };
 
+struct aoc_input_raw_event {
+    int pressed;
+    uint32_t raw;
+};
+
+struct aoc_usb_kbd_event {
+    int pressed;
+    uint8_t usage;
+    uint8_t modifiers;
+};
+
 struct aoc_fb {
     int fd;
     void *map;
@@ -51,16 +66,45 @@ struct aoc_fb {
 struct aoc_input {
     int trid_fd;
     int remote_fd;
+    int trid_bind_state;
+    int trid_last_errno;
     unsigned long frame_polled;
     unsigned long remote_open_attempted;
     unsigned long trid_open_attempted;
     unsigned long remote_log_count;
     unsigned long trid_log_count;
+    unsigned long trid_packet_count;
+    uint32_t trid_last_kind;
+    uint32_t trid_last_code;
     unsigned long active_until[AOC_INPUT_ACTION_COUNT];
     struct aoc_input_event queue[AOC_INPUT_QUEUE_CAP];
+    struct aoc_input_raw_event raw_queue[AOC_INPUT_QUEUE_CAP];
     unsigned int queue_head;
     unsigned int queue_tail;
+    unsigned int raw_queue_head;
+    unsigned int raw_queue_tail;
     int debug;
+};
+
+struct aoc_usb_kbd {
+    int fd;
+    int iface_claimed;
+    int driver_detached;
+    int urb_submitted;
+    int last_errno;
+    unsigned int iface_number;
+    unsigned int endpoint;
+    unsigned int max_packet;
+    unsigned int error_streak;
+    unsigned long report_count;
+    uint8_t modifiers;
+    uint8_t last_report[AOC_USB_KBD_REPORT_CAP];
+    char device_path[AOC_USB_KBD_PATH_CAP];
+    char driver_name[AOC_USB_KBD_NAME_CAP];
+    struct aoc_usb_kbd_event queue[AOC_USB_KBD_QUEUE_CAP];
+    unsigned int queue_head;
+    unsigned int queue_tail;
+    void *priv;
 };
 
 void aoc_log_init(const char *path);
@@ -86,6 +130,12 @@ void aoc_fb_present_xrgb8888_scaled(struct aoc_fb *fb, const uint32_t *src, unsi
 int aoc_input_open(struct aoc_input *input);
 int aoc_input_poll(struct aoc_input *input, unsigned long frame);
 int aoc_input_pop(struct aoc_input *input, struct aoc_input_event *event);
+int aoc_input_pop_raw(struct aoc_input *input, struct aoc_input_raw_event *event);
+int aoc_usb_kbd_open(struct aoc_usb_kbd *kbd);
+int aoc_usb_kbd_poll(struct aoc_usb_kbd *kbd);
+int aoc_usb_kbd_pop_event(struct aoc_usb_kbd *kbd, struct aoc_usb_kbd_event *event);
+int aoc_usb_kbd_translate_event(const struct aoc_usb_kbd_event *event, char *out, unsigned int out_cap);
+void aoc_usb_kbd_close(struct aoc_usb_kbd *kbd);
 void aoc_input_close(struct aoc_input *input);
 enum aoc_input_action aoc_input_translate_raw(uint32_t raw);
 

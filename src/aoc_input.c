@@ -59,12 +59,37 @@ static int queue_input_event(
     return 1;
 }
 
+static int queue_raw_input_event(
+    struct aoc_input *input,
+    int pressed,
+    uint32_t raw
+) {
+    unsigned int next = (input->raw_queue_head + 1U) % AOC_INPUT_QUEUE_CAP;
+
+    if (next == input->raw_queue_tail) {
+        return 0;
+    }
+    input->raw_queue[input->raw_queue_head].pressed = pressed;
+    input->raw_queue[input->raw_queue_head].raw = raw;
+    input->raw_queue_head = next;
+    return 1;
+}
+
 int aoc_input_pop(struct aoc_input *input, struct aoc_input_event *event) {
     if (input == 0 || event == 0 || input->queue_tail == input->queue_head) {
         return 0;
     }
     *event = input->queue[input->queue_tail];
     input->queue_tail = (input->queue_tail + 1U) % AOC_INPUT_QUEUE_CAP;
+    return 1;
+}
+
+int aoc_input_pop_raw(struct aoc_input *input, struct aoc_input_raw_event *event) {
+    if (input == 0 || event == 0 || input->raw_queue_tail == input->raw_queue_head) {
+        return 0;
+    }
+    *event = input->raw_queue[input->raw_queue_tail];
+    input->raw_queue_tail = (input->raw_queue_tail + 1U) % AOC_INPUT_QUEUE_CAP;
     return 1;
 }
 
@@ -211,6 +236,17 @@ static void trace_trid_packet(struct aoc_input *input, uint32_t kind, uint32_t c
     ++input->trid_log_count;
 }
 
+static void note_trid_raw_event(
+    struct aoc_input *input,
+    uint32_t kind,
+    uint32_t code
+) {
+    if (kind != 1U || code == 0U) {
+        return;
+    }
+    queue_raw_input_event(input, 1, code);
+}
+
 static void note_trid_packet(
     struct aoc_input *input,
     uint32_t kind,
@@ -218,6 +254,7 @@ static void note_trid_packet(
     unsigned long frame
 ) {
     trace_trid_packet(input, kind, code);
+    note_trid_raw_event(input, kind, code);
     if (kind == 1U) {
         note_remote_word(input, code, frame);
     }
@@ -246,6 +283,9 @@ static void process_trid_bytes(
     be_code = be32_from_bytes(buf + 4);
     le_kind = le32_from_bytes(buf);
     le_code = le32_from_bytes(buf + 4);
+    ++input->trid_packet_count;
+    input->trid_last_kind = be_kind;
+    input->trid_last_code = be_code;
 
     note_trid_packet(input, be_kind, be_code, frame);
     if (le_kind != be_kind || le_code != be_code) {
@@ -275,6 +315,8 @@ static void ensure_trid_input_open(struct aoc_input *input, unsigned long frame)
     schedule_trid_retry(input, frame);
     input->trid_fd = socket(AF_UNIX, SOCK_DGRAM, 0);
     if (input->trid_fd < 0) {
+        input->trid_bind_state = -1;
+        input->trid_last_errno = errno;
         if (input->debug) {
             aoc_log_errno("aoc_input: trid socket failed");
         }
@@ -289,6 +331,8 @@ static void ensure_trid_input_open(struct aoc_input *input, unsigned long frame)
 
     unlink(AOC_INPUT_SOCKET_PATH);
     if (bind(input->trid_fd, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
+        input->trid_bind_state = -1;
+        input->trid_last_errno = errno;
         if (input->debug) {
             aoc_log_errno("aoc_input: trid bind failed");
         }
@@ -299,6 +343,8 @@ static void ensure_trid_input_open(struct aoc_input *input, unsigned long frame)
 
     chmod(AOC_INPUT_SOCKET_PATH, 0666);
     input->trid_open_attempted = 0;
+    input->trid_bind_state = 1;
+    input->trid_last_errno = 0;
     aoc_log_line("aoc_input: trid bind ok");
 }
 
@@ -337,6 +383,8 @@ int aoc_input_open(struct aoc_input *input) {
     memset(input, 0, sizeof(*input));
     input->trid_fd = -1;
     input->remote_fd = -1;
+    input->trid_bind_state = 0;
+    input->trid_last_errno = 0;
     input->frame_polled = ~0UL;
 
     debug_env = getenv("AOC_INPUT_DEBUG");

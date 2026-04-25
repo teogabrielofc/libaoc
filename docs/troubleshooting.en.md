@@ -34,6 +34,18 @@ export AOC_INPUT_DEBUG="${AOC_INPUT_DEBUG:-1}"
 
 Then inspect `doom/launch_doom_usb.log` and `/etc/core/doom.log`.
 
+## USB keyboard does not work
+
+The SDK USB keyboard path does not use the same backend as the remote control.
+It uses direct `usbfs`/HID access in userland.
+
+If your app depends on a keyboard:
+
+- use the `aoc_usb_kbd` backend, not only `aoc_input`
+- do not assume `/dev/keyboard`, `/dev/input/event*`, or
+  `/tmp/hp_dfb_handler` will be useful for keyboard input on this firmware
+- confirm that the device actually enumerates in `/proc/bus/usb/devices`
+
 ## PSB does nothing
 
 Confirm that the USB drive root contains:
@@ -75,3 +87,15 @@ python tools/make_psb.py doom-launcher --core core.plfApFusion71Di.875.11
 
 If this is another AOC TV, always generate PSBs from a core captured on that
 specific model.
+
+## USB tethering does not bring up networking
+
+The current state on the tested firmware is:
+
+- `telnetd` exists
+- USB host support exists
+- but phone tethering still has not exposed a usable userland network interface
+
+So if the phone connects and nothing like `eth0`/`usb0`/`rndis0` gets an IP,
+the most likely issue is missing or incomplete driver/kernel support for that
+networking mode rather than `libaoc` itself.

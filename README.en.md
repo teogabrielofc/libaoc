@@ -18,6 +18,18 @@ The repo is self-contained:
 - `artifacts/psb/`: `libaocdoom.*` and `libaoccore.*`.
 - `tools/`: build, PSB, USB superfloppy, and core dump address tools.
 
+## Current validated state
+
+- Native framebuffer validated through `/dev/hidtv2dge`.
+- Remote control validated through `aoc_input` with `/tmp/hp_dfb_handler` and
+  `/dev/remote` fallback.
+- USB keyboard validated in userland through `usbfs`/boot-HID keyboard, exposed
+  by the `aoc_usb_kbd` backend.
+- USB phone tethering is still not validated on this firmware. The TV clearly
+  has USB host support and sees some USB devices, but no usable network
+  interface has appeared in userland so far without additional driver/kernel
+  support.
+
 ## Compatibility scope
 
 - General: SDK structure, MIPS/uClibc build flow, minimal runtime, and payload
@@ -107,6 +119,9 @@ make app APP=examples/hello/hello.c OUT=artifacts/usb/hello
 - `AOC_FB_PAGES=all` paints every page and is the safe fallback if video does
   not appear.
 - `AOC_INPUT_DEBUG=1` enables raw input logs for button mapping.
+
+The SDK also exposes the `aoc_usb_kbd` backend for apps that need a USB
+keyboard path separate from the remote-control stack.
 
 Confirmed controls:
 

@@ -12,10 +12,25 @@ endereços PSB e layout de framebuffer/input.
 - `aoc_fb.c`: abre `/dev/hidtv2dge`, lê geometria, mapeia framebuffer e mostra
   frames XRGB8888.
 - `aoc_input.c`: usa `/tmp/hp_dfb_handler`, decodifica pacotes do controle e
-  tenta fallback em `/dev/remote`.
+  tenta fallback em `/dev/remote`. Também expõe a fila crua
+  `aoc_input_pop_raw()` para apps que precisem inspecionar eventos sem tradução.
+- `aoc_usb_kbd.c`: enumera `usbfs`, encontra interface HID boot keyboard,
+  faz `claim` em userland, lê relatórios por URB e traduz para bytes ASCII ou
+  escapes de terminal.
 - `aoc_log.c`: escreve logs pequenos no filesystem da TV e pode chamar
   `fsync`.
 - `aoc_runtime.c`: wrappers pequenos para syscall MIPS, tempo e sleep.
+
+## Input
+
+O SDK hoje trata input em dois caminhos separados:
+
+- `aoc_input`: controle remoto / stack da TV.
+- `aoc_usb_kbd`: teclado USB cru via `usbfs`.
+
+Essa separação é intencional. Na LC32D1320, o teclado USB validado não entrou
+de forma útil pelo mesmo socket de eventos do controle remoto, então o backend
+de teclado foi levantado diretamente sobre a interface HID.
 
 ## Runtime
 
@@ -37,6 +52,9 @@ O adaptador do DoomGeneric apenas traduz hooks para chamadas `libaoc`:
 O modo padrão pinta uma página de framebuffer por frame. Use
 `AOC_FB_PAGES=all` se outra unidade ou firmware mostrar a página errada.
 
+O Doom continua focado no controle remoto, mas o backend de teclado USB já pode
+ser reutilizado por apps interativos mais próximos de um shell/terminal.
+
 ## PSB
 
 `tools/make_psb.py` gera três famílias:
@@ -48,3 +66,11 @@ O modo padrão pinta uma página de framebuffer por frame. Use
 O PSB customizado usa o mesmo caminho `system(a0)` já validado no aparelho.
 As constantes padrão desse caminho são da LC32D1320; para outro modelo, gere
 um core e regenere o PSB com `--core`.
+
+## Limite atual de rede
+
+O SDK ainda não inclui backend de rede/tethering. A investigação prática
+mostrou presença de `telnetd` e host USB, mas não confirmou uma interface de
+rede usável para tethering de celular neste firmware. Se essa rota avançar,
+ela provavelmente vai exigir suporte explícito de driver/kernel ou outro tipo
+de adaptação fora do escopo atual do `libaoc`.

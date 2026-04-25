@@ -51,6 +51,14 @@ Se o modelo não for LC32D1320, não assuma que os endereços PSB são iguais.
 Primeiro gere/colete um core com `libaoccore.*`, rode `tools/core_addresses.py`
 e gere novamente os PSBs com `--core`.
 
+## Nota sobre teclado e rede
+
+- O SDK já tem backend de teclado USB em userland (`aoc_usb_kbd`) para apps
+  nativos.
+- USB tethering de celular ainda não está fechado no firmware testado. Não
+  assuma que a TV vai expor `usb0`, `rndis0` ou qualquer interface de rede útil
+  sem trabalho extra de driver/kernel.
+
 ## PSB customizado
 
 Para gerar um PSB que roda um comando escolhido:

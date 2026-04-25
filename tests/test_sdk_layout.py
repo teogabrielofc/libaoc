@@ -23,9 +23,24 @@ def test_libaoc_public_api_and_platform_constants() -> None:
     assert "AOC_INPUT_TURN_LEFT = AOC_INPUT_CHUP" in text
     assert "AOC_INPUT_TURN_RIGHT = AOC_INPUT_CHDOWN" in text
     assert "AOC_INPUT_USE = AOC_INPUT_INPUT" in text
+    assert "struct aoc_input_raw_event" in text
+    assert "struct aoc_usb_kbd_event" in text
+    assert "struct aoc_usb_kbd" in text
+    assert "error_streak" in text
+    assert "trid_bind_state" in text
+    assert "trid_last_errno" in text
+    assert "trid_packet_count" in text
+    assert "trid_last_kind" in text
+    assert "trid_last_code" in text
     assert "int aoc_fb_open(struct aoc_fb *fb, const char *device_path);" in text
     assert "void aoc_fb_present_xrgb8888_scaled(" in text
     assert "int aoc_input_open(struct aoc_input *input);" in text
+    assert "int aoc_input_pop_raw(struct aoc_input *input, struct aoc_input_raw_event *event);" in text
+    assert "int aoc_usb_kbd_open(struct aoc_usb_kbd *kbd);" in text
+    assert "int aoc_usb_kbd_poll(struct aoc_usb_kbd *kbd);" in text
+    assert "int aoc_usb_kbd_pop_event(struct aoc_usb_kbd *kbd, struct aoc_usb_kbd_event *event);" in text
+    assert "int aoc_usb_kbd_translate_event(const struct aoc_usb_kbd_event *event, char *out, unsigned int out_cap);" in text
+    assert "void aoc_usb_kbd_close(struct aoc_usb_kbd *kbd);" in text
     assert "enum aoc_input_action aoc_input_translate_raw(uint32_t raw);" in text
 
 
@@ -33,6 +48,7 @@ def test_libaoc_sources_include_confirmed_button_map_and_fast_fb_mode() -> None:
     fb = (ROOT / "src/aoc_fb.c").read_text(encoding="ascii")
     inp = (ROOT / "src/aoc_input.c").read_text(encoding="ascii")
     log = (ROOT / "src/aoc_log.c").read_text(encoding="ascii")
+    usb = (ROOT / "src/aoc_usb_kbd.c").read_text(encoding="ascii")
 
     assert "getenv(\"AOC_FB_PAGES\")" in fb
     assert "\"all\"" in fb
@@ -50,6 +66,40 @@ def test_libaoc_sources_include_confirmed_button_map_and_fast_fb_mode() -> None:
     assert "REMOTE_KEY_SOCKET_INPUT_2 0x0000003EU" in inp
     assert "REMOTE_KEY_SOCKET_INPUT_3 0x00100017U" in inp
     assert "getenv(\"AOC_INPUT_DEBUG\")" in inp
+    assert "queue_raw_input_event(" in inp
+    assert "note_trid_raw_event(" in inp
+    assert "aoc_input_pop_raw(" in inp
+    assert "input->trid_bind_state = 1;" in inp
+    assert "input->trid_bind_state = -1;" in inp
+    assert "input->trid_last_errno" in inp
+    assert "input->trid_packet_count" in inp
+    assert "input->trid_last_kind" in inp
+    assert "input->trid_last_code" in inp
+
+    assert '"/proc/bus/usb/devices"' in usb
+    assert '"/proc/bus/usb/%03u/%03u"' in usb or '"/proc/bus/usb/%03d/%03d"' in usb
+    assert "USBDEVFS_GETDRIVER" in usb
+    assert "USBDEVFS_DISCONNECT_CLAIM" in usb
+    assert "USBDEVFS_SUBMITURB" in usb
+    assert "USBDEVFS_REAPURBNDELAY" in usb
+    assert "USBDEVFS_CLAIMINTERFACE" in usb
+    assert "Cls=03" in usb
+    assert "Sub=01" in usb
+    assert "Prot=01" in usb
+    assert "aoc_usb_kbd_open(" in usb
+    assert "aoc_usb_kbd_poll(" in usb
+    assert "aoc_usb_kbd_pop_event(" in usb
+    assert "aoc_usb_kbd_translate_event(" in usb
+    assert "aoc_usb_kbd_close(" in usb
+    assert "kbd->error_streak" in usb
+    assert "case 0x35U:" in usb
+    assert "case 0x64U:" in usb
+    assert "case 0x87U:" in usb
+    assert "altgr_down" in usb
+    assert "access(kbd->device_path, F_OK)" in usb or "path_exists(kbd->device_path)" in usb
+    assert "if (!kbd->urb_submitted)" in usb
+    assert "priv->urb.status != 0" in usb
+    assert "if (path_exists(kbd->device_path))" in usb
 
     assert "void aoc_log_set_fsync(int enabled)" in log
     assert "fsync(fd);" in log

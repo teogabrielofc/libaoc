@@ -106,15 +106,23 @@ def test_libaoc_sources_include_confirmed_button_map_and_fast_fb_mode() -> None:
 
 
 def test_kernel_tether_staging_layout_exists() -> None:
+    license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
     readme = (ROOT / "kernel" / "README.md").read_text(encoding="utf-8")
+    top_readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    top_readme_en = (ROOT / "README.en.md").read_text(encoding="utf-8")
     build = (ROOT / "kernel" / "scripts" / "build_tether_modules_wsl.sh").read_text(encoding="utf-8")
     prepare = (ROOT / "kernel" / "scripts" / "prepare_kernel_tree_wsl.sh").read_text(encoding="utf-8")
     config = (ROOT / "kernel" / "config" / "lc32d1320-2.6.18_pro500.default.config").read_text(encoding="utf-8")
     rndis = (ROOT / "kernel" / "vendor" / "linux-2.6.18" / "drivers" / "usb" / "net" / "rndis_host.c").read_text(encoding="utf-8")
     cdc = (ROOT / "kernel" / "vendor" / "linux-2.6.18" / "drivers" / "usb" / "net" / "cdc_ether.c").read_text(encoding="utf-8")
 
+    assert "GNU GENERAL PUBLIC LICENSE" in license_text
+    assert "Version 2, June 1991" in license_text
+    assert "GPL-2.0-only" in top_readme
+    assert "GPL-2.0-only" in top_readme_en
     assert "rndis_host" in readme
     assert "cdc_ether" in readme
+    assert "GPL-2.0-only" in readme
     assert "2.6.18_pro500.default" in readme
     assert "gcc-4.2" in readme
     assert "CONFIG_USB_NET_RNDIS_HOST" in prepare

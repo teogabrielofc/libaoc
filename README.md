@@ -18,6 +18,14 @@ O repo é autocontido:
 - `artifacts/psb/`: `libaocdoom.*` e `libaoccore.*`.
 - `tools/`: build, PSB, USB superfloppy e leitura de core dump.
 
+## Licença
+
+Este repositório é distribuído sob `GPL-2.0-only`. Isso ficou obrigatório
+porque a árvore `kernel/` vendorizou arquivos oficiais do Linux 2.6.18,
+incluindo `rndis_host.c`, `cdc_ether.c`, `usbnet.h`, `Kconfig` e `Makefile`.
+
+Veja [LICENSE](C:/Users/teoga/Desktop/pastas/libaoc/LICENSE).
+
 ## Estado atual validado
 
 - Framebuffer nativo validado via `/dev/hidtv2dge`.

@@ -58,6 +58,12 @@ Isso importa porque:
 - `scripts/build_tether_modules_wsl.sh`
   - tenta gerar `rndis_host.ko` e `cdc_ether.ko`
 
+## Licença
+
+Os arquivos vendorizados em `vendor/linux-2.6.18/drivers/usb/net/` vêm do
+Linux 2.6.18 e devem permanecer sob `GPL-2.0-only`. Por isso o repositório
+como um todo agora também está marcado como `GPL-2.0-only`.
+
 ## Observação importante sobre a árvore base
 
 A árvore oficial do Linux 2.6.18 não conhece todos os patches de vendor da TV.

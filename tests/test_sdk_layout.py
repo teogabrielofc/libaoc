@@ -103,3 +103,31 @@ def test_libaoc_sources_include_confirmed_button_map_and_fast_fb_mode() -> None:
 
     assert "void aoc_log_set_fsync(int enabled)" in log
     assert "fsync(fd);" in log
+
+
+def test_kernel_tether_staging_layout_exists() -> None:
+    readme = (ROOT / "kernel" / "README.md").read_text(encoding="utf-8")
+    build = (ROOT / "kernel" / "scripts" / "build_tether_modules_wsl.sh").read_text(encoding="utf-8")
+    prepare = (ROOT / "kernel" / "scripts" / "prepare_kernel_tree_wsl.sh").read_text(encoding="utf-8")
+    config = (ROOT / "kernel" / "config" / "lc32d1320-2.6.18_pro500.default.config").read_text(encoding="utf-8")
+    rndis = (ROOT / "kernel" / "vendor" / "linux-2.6.18" / "drivers" / "usb" / "net" / "rndis_host.c").read_text(encoding="utf-8")
+    cdc = (ROOT / "kernel" / "vendor" / "linux-2.6.18" / "drivers" / "usb" / "net" / "cdc_ether.c").read_text(encoding="utf-8")
+
+    assert "rndis_host" in readme
+    assert "cdc_ether" in readme
+    assert "2.6.18_pro500.default" in readme
+    assert "gcc-4.2" in readme
+    assert "CONFIG_USB_NET_RNDIS_HOST" in prepare
+    assert "CONFIG_USB_NET_CDCETHER" in prepare
+    assert "AOC_TETHER_FORCE_MODULES" in prepare
+    assert "EXTRAVERSION = _pro500" in prepare
+    assert 'MODULE_PROC_FAMILY "MIPS32_R2 "' in prepare
+    assert "gcc-4.2" in prepare
+    assert "rndis_host.ko" in build
+    assert "cdc_ether.ko" in build
+    assert "M=\"$AOC_MODULE_DIR\"" in build
+    assert "AOC_TETHER_FORCE_MODULES=1" in build
+    assert "CONFIG_USB_NET_RNDIS_HOST is not set" in config
+    assert "CONFIG_USB_NET_CDCETHER is not set" in config
+    assert "Host Side support for RNDIS Networking Links" in rndis
+    assert "CDC Ethernet based networking peripherals" in cdc
